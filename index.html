@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Meta tags for character set and viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Link to external CSS stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Link to Vue.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    
+    <!-- Link to external JavaScript file for product data -->
+    <script src="product.js"></script>
+    
+    <!-- Links to Font Awesome icon libraries -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    
+    <!-- Title of the webpage -->
+    <title>After School Hub ngfjgkryk</title>
+</head>
+
+<body>
+    <!-- The main Vue.js app container -->
+    <div id="app">
+        <!-- Header section containing the navigation bar -->
+        <header>
+            <div class="navbar">
+                <div class="logo">
+                    <!-- Site logo -->
+                    <h1> After School Hub </h1>
+                </div>
+                <!-- Search bar with Vue.js data binding and event handling -->
+                <div class="search-bar">
+                    <input type="text" placeholder="Search..." v-model="searchQuery" @input="filterProducts">
+                </div>
+                <!-- Shopping cart icon with Vue.js event handling -->
+                <button class="fas fa-shopping-cart" v-on:click="showCheckout" :disabled="cartItemCount < 1">
+                    {{cartItemCount}}
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main content section -->
+        <main>
+            <!-- Product display or shopping cart content based on showProduct variable -->
+            <div class="mainDiv" v-if="showProduct">
+                <!-- Sorting and filtering options for products -->
+                <div class="sortDiv">
+                    <div class="filteringDiv">
+                        <p style="font-weight: bold">Sort By:</p>
+                        <br>
+                        <!-- Radio buttons for sorting options -->
+                        <label>
+                            <input type="radio" value="fees" v-model="filter">Fees
+                            <br>
+                            <input type="radio" value="subject" v-model="filter">Subject
+                            <br>
+                            <input type="radio" value="location" v-model="filter">Location
+                            <br>
+                            <input type="radio" value="slots" v-model="filter">Slots
+                        </label>
+                        <label>
+                            <p style="font-weight: bold">Sort Order:</p>
+                            <!-- Radio buttons for sorting order -->
+                            <input type="radio" value="ascending" v-model="sortOrder">Ascending
+                            <br>
+                            <input type="radio" value="descending" v-model="sortOrder">Descending
+                        </label>
+                    </div>
+                </div>
+                <!-- Display of individual products with Vue.js data binding and event handling -->
+                <div class="productMainDiv">
+                    <div class="products">
+                        <div class="productDetails" v-for="product in sortedProducts">
+                            <!-- Product details and image -->
+                            <figure>
+                                <img v-bind:src="product.image" style="height: 100px; width: 100px">
+                            </figure>
+                            <h2 v-text="product.title"></h2>
+                            <p>Fees: {{product.Fees}} AED</p>
+                            <p>Location: {{product.location}}</p>
+                            <p>Available Slots: {{product.availableInventory - cartCount(product.id)}} </p>
+                            <!-- Add to cart button with conditional rendering and disabled state -->
+                            <button class="addToCart" v-on:click="addToCart(product)" v-if="canAddToCart(product)">
+                                Add To Cart
+                            </button>
+                            <button style="opacity:0.5" class="addToCart" disabled="disabled" v-else>
+                                Add To Cart
+                            </button>
+                            <!-- Messages for inventory status -->
+                            <span v-if="product.availableInventory === cartCount(product.id)">All out!</span>
+                            <span v-else-if="product.availableInventory - cartCount(product.id) < 5">Only
+                                {{product.availableInventory - cartCount(product.id)}} left!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shopping cart content -->
+            <div class="cartMainDiv" v-else>
+                <div class="cart-items">
+                    <!-- Display of products in the shopping cart with Vue.js data binding and event handling -->
+                    <div v-for="product in cartProducts" class="cartProducts">
+                        <figure>
+                            <img v-bind:src="product.image" height="100px" width="100px">
+                        </figure>
+                        <h2 v-text="product.title"></h2>
+                        <p v-text="product.description"></p>
+                        <p>Fees: {{product.Fees}} </p>
+                        <p>Quantity: {{cartCount(product.id)}}</p>
+                        <!-- Button to remove product from the cart -->
+                        <button class="removeButton" v-on:click="deleteFromCart(product.id)">Remove</button>
+                    </div>
+                </div>
+                <!-- Order information form with Vue.js data binding and validation -->
+                <div class="order-info" style="color: white; margin-top: 20px;">
+                    <h2>Order Information</h2>
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" v-model="order.firstName" @input="validateOrderForm">
+                    <br><br>
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" v-model="order.lastName" @input="validateOrderForm">
+                    <br><br>
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" v-model="order.phone" @input="validateOrderForm">
+                    <br><br>
+                    <!-- Button to place the order with conditional disabled state -->
+                    <button v-on:click="submitForm" :disabled="!isOrderFormValid">Place Order</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Vue.js script for data binding, methods, and computed properties -->
+    <script type="text/javascript">
+        // Vue.js instance
+        let webstore = new Vue({
+            el: '#app',
+            // Data properties for managing state
+            data: {
+                showProduct: true,
+                sitename: 'After school hub',
+                products: products,
+                filter: '',
+                sortOrder: 'ascending',
+                order: {
+                    firstName: '',
+                    lastName: '',
+                    phone: ''
+                },
+                cart: [],
+                isOrderFormValid: false,
+                searchQuery: '',
+            },
+            // Methods for handling user interactions
+            methods: {
+                addToCart(product) {
+                    this.cart.push(product.id);
+                    console.log('Cart:', this.cart);
+                },
+                showCheckout: function () {
+                    this.showProduct = !this.showProduct;
+                },
+                submitForm() {
+                    alert('Order Submitted!');
+                },
+                canAddToCart(product) {
+                    return product.availableInventory > this.cartCount(product.id);
+                },
+                cartCount(id) {
+                    let count = 0;
+                    for (let i = 0; i < this.cart.length; i++) {
+                        if (this.cart[i] === id) {
+                            count++;
+                        }
+                    }
+                    return count;
+                },
+                deleteFromCart(id) {
+                    let found = false;
+
+                    function cartRefresh(cartItem) {
+                        if (found == false) {
+                            if (cartItem == id) {
+                                found = true;
+                            } else {
+                                return cartItem;
+                            }
+                        } else {
+                            return cartItem;
+                        }
+                    }
+
+                    this.cart = this.cart.filter(cartRefresh);
+                },
+                validateOrderForm() {
+                    const nameRegex = /^[A-Za-z]+$/;
+                    const phoneRegex = /^[0-9]+$/;
+
+                    const isNameValid = nameRegex.test(this.order.firstName) && nameRegex.test(this.order.lastName);
+                    const isPhoneValid = phoneRegex.test(this.order.phone);
+
+                    this.isOrderFormValid = isNameValid && isPhoneValid;
+                },
+                filterProducts() {
+                    const query = this.searchQuery.toLowerCase();
+                    this.filteredProducts = this.sortedProducts.filter(product =>
+                        product.title.toLowerCase().includes(query) ||
+                        product.location.toLowerCase().includes(query)
+                    );
+                },
+            },
+            // Computed properties for dynamic data manipulation
+            computed: {
+                cartItemCount: function () {
+                    return this.cart.length || '';
+                },
+                sortedProducts() {
+                    // Clone the products array to avoid modifying the original data
+                    let productsArray = this.products.slice(0);
+                    // Filter products based on search query
+                    productsArray = productsArray.filter(product =>
+                        product.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                        product.location.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                    // Sort products based on selected filter and sortOrder
+                    switch (this.filter) {
+                        case 'fees':
+                            productsArray.sort((a, b) => (this.sortOrder === 'ascending' ? a.Fees - b.Fees : b.Fees - a.Fees));
+                            break;
+                        case 'subject':
+                            productsArray.sort((a, b) => (this.sortOrder === 'ascending' ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title)));
+                            break;
+                        case 'location':
+                            productsArray.sort((a, b) => (this.sortOrder === 'ascending' ? a.location.localeCompare(b.location) : b.location.localeCompare(a.location)));
+                            break;
+                        case 'slots':
+                            productsArray.sort((a, b) => (this.sortOrder === 'ascending' ? a.availableInventory - b.availableInventory : b.availableInventory - a.availableInventory));
+                            break;
+                        default:
+                            break;
+                    }
+
+                    return productsArray;
+                },
+                cartProducts() {
+                    // Clone the products array to avoid modifying the original data
+                    let productsArray = this.products.slice(0);
+                    let cartProducts = [];
+                    // Iterate through products and cart to find matching items
+                    for (let i = 0; i < productsArray.length; i++) {
+                        for (let j = 0; j < this.cart.length; j++) {
+                            if (productsArray[i].id == this.cart[j]) {
+                                cartProducts.push(productsArray[i])
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
+                    }
+                    return cartProducts;
+                },
+            },
+        });
+    </script>
+</body>
+
+</html>
