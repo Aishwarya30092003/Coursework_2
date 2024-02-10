@@ -179,40 +179,49 @@
                 showCheckout: function () {
                     this.showProduct = !this.showProduct;
                 },
-                submitForm() {
-                    alert("order submitted")
-                    this.orderPlaced = this.orderPlaced ? false : true;
-                    this.showProduct = true;
-                    let productsOrdered = [];
+                // submitForm() {
+                //     alert("order submitted")
+                //     this.orderPlaced = this.orderPlaced ? false : true;
+                //     this.showProduct = true;
+                //     let productsOrdered = [];
 
-                    this.cartProducts.forEach(element => {
-                        productsOrdered.push(element.title + " x " + this.cartCount(element.id));
-                    });
+                //     // this.cartProducts.forEach(product => {
+                //     //     productsOrdered.push(product.title + " x " + this.cartCount(product.id));
+                //     //     // Call updateInventory after successful order submission
+                //     //     const newInventory = product.availableInventory - this.cartCount(product.id);
+                //     //     this.updateInventory(product, newInventory);
+                //     // });
 
-                    let orderInfo = {
-                        "FullName": this.order['firstName'] + this.order['lastName'],
-                        "Number": this.order['number'],
-                        "Products": productsOrdered
-                    }
+                //     let orderInfo = {
+                //         "FullName": this.order['firstName'] + this.order['lastName'],
+                //         "Number": this.order['number'],
+                //         "Products": productsOrdered
+                //     }
 
-                    fetch('http://localhost:3000/collection/Orders', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(orderInfo)
-                    }).then(
-                        function (response) {
-                            response.json().then(
-                                function (json) {
-                                    webstore.products = json;
-                                    console.log(json);
-                                })
-                        });
+                //     fetch('http://localhost:3000/collection/Orders', {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json',
+                //         },
+                //         body: JSON.stringify(orderInfo)
+                //     }).then(response => {
+                //         if (response.ok) {
+                //             this.cartProducts.forEach(product => {
+                //                 // productsOrdered.push(product.title + " x " + this.cartCount(product.id));
+                //                 // // Call updateInventory after successful order submission
+                //                 // const newInventory = product.availableInventory - this.cartCount(product.id);
+                //                 this.updateInventory(product);
+                //             });
+                //             console.log('Order submitted successfully');
+                //         } else {
+                //             console.error('Failed to submit order');
+                //         }
+                //     });
 
-                    this.sitename = 'Courses'
-                    this.cart.splice(0, this.cart.length);
-                },
+                //     this.sitename = 'Courses'
+                //     this.cart.splice(0, this.cart.length);
+                // },
+
 
                 canAddToCart(product) {
                     return product.availableInventory > this.cartCount(product.id);
@@ -264,6 +273,67 @@
                             console.error('Error Searching:', error.message);
                         });
                 },
+
+                submitForm() {
+                    let productsOrdered = [];
+
+                    this.cartProducts.forEach(product => {
+                        productsOrdered.push(product.title + " x " + this.cartCount(product.id));
+                    });
+
+                    let orderInfo = {
+                        "FullName": this.order.firstName + ' ' + this.order.lastName,
+                        "Number": this.order.phone,
+                        "Products": productsOrdered
+                    };
+
+                    fetch('http://localhost:3000/collection/Orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderInfo)
+                    }).then(response => {
+                        if (response.ok) {
+                            // Place order successful
+                            // Now update inventory
+                            this.cartProducts.forEach(product => {
+                                const newInventory = product.availableInventory - this.cartCount(product.id);
+                                this.updateInventory(product._id, newInventory);
+                            });
+                            console.log('Order submitted successfully');
+                            alert("Order Submitted");
+                            this.sitename = 'Courses';
+                            this.cart = [];
+                            window.location.reload()
+                        } else {
+                            console.error('Failed to submit order');
+                        }
+                    });
+                },
+
+                updateInventory(productId, newInventory) {
+                    const url = `http://localhost:3000/collection/Products/updateInventory/${productId}`;
+                    const data = { availableInventory: newInventory };
+
+                    fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to update inventory');
+                            }
+                            console.log('Inventory updated successfully');
+                        })
+                        .catch(error => {
+                            console.error('Error updating inventory:', error);
+                        });
+                }
+
             },
 
             // Computed properties for dynamic data manipulation

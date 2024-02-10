@@ -54,7 +54,7 @@ app.get('/collection/:collectionName/:id', (req, res, next) => {
     })
 })
 
-app.put('/collection/:collectionName/:id', (req, res, next) => {
+app.put('/collection/:collectionName/updateInventory/:id', (req, res, next) => {
     req.collection.update(
         { _id: new ObjectID(req.params.id) },
         { $set: req.body },
@@ -97,6 +97,29 @@ app.get('/collection/:collectionName/search/:searchQ', (req, res, next) => {
         res.send(results); // Send the search results back to the client
     });
 });
+// Add a route to handle inventory updates
+// Add a route to handle inventory updates
+// app.put('/collection/:collectionName/updateInventory/:id', (req, res, next) => {
+//     const productId = req.params.id;
+//     const newInventory = req.body.inventory;
+
+//     // Update the inventory of the specified product in the MongoDB collection
+//     req.collection.update(
+//         { _id: ObjectId(productId) },
+//         { $set: { availableInventory: newInventory } }, // Make sure 'availableInventory' is the correct field name in your MongoDB collection
+//         (err, result) => {
+//             if (err) {
+//                 console.error('Error updating inventory:', err);
+//                 return res.status(500).json({ error: 'Failed to update inventory' });
+//             }
+//             res.json({ message: 'Inventory updated successfully' });
+//         }
+//     );
+// });
+
+
+
+
 
 // const port = process.env.PORT || 3000
 // app.listen(port)
