@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path');
 
 const app = express()
 
@@ -97,29 +98,23 @@ app.get('/collection/:collectionName/search/:searchQ', (req, res, next) => {
         res.send(results); // Send the search results back to the client
     });
 });
-// Add a route to handle inventory updates
-// Add a route to handle inventory updates
-// app.put('/collection/:collectionName/updateInventory/:id', (req, res, next) => {
-//     const productId = req.params.id;
-//     const newInventory = req.body.inventory;
 
-//     // Update the inventory of the specified product in the MongoDB collection
-//     req.collection.update(
-//         { _id: ObjectId(productId) },
-//         { $set: { availableInventory: newInventory } }, // Make sure 'availableInventory' is the correct field name in your MongoDB collection
-//         (err, result) => {
-//             if (err) {
-//                 console.error('Error updating inventory:', err);
-//                 return res.status(500).json({ error: 'Failed to update inventory' });
-//             }
-//             res.json({ message: 'Inventory updated successfully' });
-//         }
-//     );
-// });
+const STATIC_IMAGE_DIR = path.join(__dirname,'static','images');
 
+// Set up middleware to serve static files (images in this case)
+app.use('/images', express.static(STATIC_IMAGE_DIR));
 
+// Define a route to handle image requests
+app.get('/images/:imageFilename', (req, res) => {
+    const imageFilename = req.params.imageFilename;
+    res.sendFile(path.join(STATIC_IMAGE_DIR, imageFilename));
+});
 
-
+// Error handler middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Image Not Found');
+});
 
 // const port = process.env.PORT || 3000
 // app.listen(port)
