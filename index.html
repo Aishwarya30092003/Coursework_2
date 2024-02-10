@@ -253,13 +253,19 @@
                     this.isOrderFormValid = isNameValid && isPhoneValid;
                 },
                 filterProducts() {
-                    const query = this.searchQuery.toLowerCase();
-                    this.filteredProducts = this.sortedProducts.filter(product =>
-                        product.title.toLowerCase().includes(query) ||
-                        product.location.toLowerCase().includes(query)
-                    );
+                    const url = `http://localhost:3000/collection/Products/search/${this.searchQuery}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.products = data;
+                            console.log('Results:', data);
+                        })
+                        .catch(error => {
+                            console.error('Error Searching:', error.message);
+                        });
                 },
             },
+
             // Computed properties for dynamic data manipulation
             computed: {
                 cartItemCount: function () {

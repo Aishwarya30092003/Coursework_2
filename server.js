@@ -74,5 +74,29 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
         })
 })
 
+app.get('/collection/:collectionName/search/:searchQ', (req, res, next) => {
+    const query = req.params.searchQ; // Retrieve the search query parameter
+
+    let filter = {}; // Define an empty filter object
+
+    if (query) {
+        // If a search query is provided, construct a filter to search by title or description
+        filter = {
+            $or: [
+                { title: { $regex: query, $options: 'i' } }, // Case-insensitive search by title // Case-insensitive search by description
+            ]
+        };
+    }
+
+    // Use the filter to find matching classes
+    db.collection('Products').find(filter).toArray((err, results) => {
+        if (err) {
+            console.error('Error Searching:', err);
+            return res.status(500).json({ error: 'Failed to search product' });
+        }
+        res.send(results); // Send the search results back to the client
+    });
+});
+
 // const port = process.env.PORT || 3000
 // app.listen(port)
