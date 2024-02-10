@@ -13,6 +13,13 @@ app.use((req, res, next) => {
     next();
 })
 
+// Logger middleware function
+app.use((req, res, next) => {
+    // Log the request method and URL
+    console.log(`[${new Date().toUTCString()}] ${req.method} ${req.originalUrl}`);
+    next()
+    // Log request body if it exists
+    });
 const MongoClient = require('mongodb').MongoClient;
 
 let db;
