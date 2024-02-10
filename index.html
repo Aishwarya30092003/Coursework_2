@@ -5,21 +5,21 @@
     <!-- Meta tags for character set and viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Link to external CSS stylesheet -->
     <link rel="stylesheet" href="css/styles.css">
-    
+
     <!-- Link to Vue.js library -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
-    
+
     <!-- Link to external JavaScript file for product data -->
     <script src="product.js"></script>
-    
+
     <!-- Links to Font Awesome icon libraries -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
         integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-    
+
     <!-- Title of the webpage -->
     <title>After School Hub ngfjgkryk</title>
 </head>
@@ -44,7 +44,7 @@
                 </button>
             </div>
         </header>
-        
+
         <!-- Main content section -->
         <main>
             <!-- Product display or shopping cart content based on showProduct variable -->
@@ -100,7 +100,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Shopping cart content -->
             <div class="cartMainDiv" v-else>
                 <div class="cart-items">
@@ -135,7 +135,7 @@
             </div>
         </main>
     </div>
-    
+
     <!-- Vue.js script for data binding, methods, and computed properties -->
     <script type="text/javascript">
         // Vue.js instance
@@ -145,7 +145,7 @@
             data: {
                 showProduct: true,
                 sitename: 'After school hub',
-                products: products,
+                products: [],
                 filter: '',
                 sortOrder: 'ascending',
                 order: {
@@ -157,6 +157,19 @@
                 isOrderFormValid: false,
                 searchQuery: '',
             },
+
+            created: function () {
+                console.log("requesting data from server");
+                fetch('http://localhost:3000/collection/Products').then(
+                    function (response) {
+                        response.json().then(
+                            function (json) {
+                                webstore.products = json;
+                                console.log(json);
+                            })
+                    });
+            },
+
             // Methods for handling user interactions
             methods: {
                 addToCart(product) {
@@ -167,8 +180,40 @@
                     this.showProduct = !this.showProduct;
                 },
                 submitForm() {
-                    alert('Order Submitted!');
+                    alert("order submitted")
+                    this.orderPlaced = this.orderPlaced ? false : true;
+                    this.showProduct = true;
+                    let productsOrdered = [];
+
+                    this.cartProducts.forEach(element => {
+                        productsOrdered.push(element.title + " x " + this.cartCount(element.id));
+                    });
+
+                    let orderInfo = {
+                        "FullName": this.order['firstName'] + this.order['lastName'],
+                        "Number": this.order['number'],
+                        "Products": productsOrdered
+                    }
+
+                    fetch('http://localhost:3000/collection/Orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderInfo)
+                    }).then(
+                        function (response) {
+                            response.json().then(
+                                function (json) {
+                                    webstore.products = json;
+                                    console.log(json);
+                                })
+                        });
+
+                    this.sitename = 'Courses'
+                    this.cart.splice(0, this.cart.length);
                 },
+
                 canAddToCart(product) {
                     return product.availableInventory > this.cartCount(product.id);
                 },
