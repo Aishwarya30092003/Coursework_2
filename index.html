@@ -160,6 +160,7 @@
 
             created: function () {
                 console.log("requesting data from server");
+                // Fetch initial product data from server
                 fetch('http://afterschool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products').then(
                     function (response) {
                         response.json().then(
@@ -173,60 +174,20 @@
             // Methods for handling user interactions
             methods: {
                 addToCart(product) {
+                    // Add product to the cart
                     this.cart.push(product.id);
                     console.log('Cart:', this.cart);
                 },
                 showCheckout: function () {
+                    // Toggle between displaying products and the shopping cart
                     this.showProduct = !this.showProduct;
                 },
-                // submitForm() {
-                //     alert("order submitted")
-                //     this.orderPlaced = this.orderPlaced ? false : true;
-                //     this.showProduct = true;
-                //     let productsOrdered = [];
-
-                //     // this.cartProducts.forEach(product => {
-                //     //     productsOrdered.push(product.title + " x " + this.cartCount(product.id));
-                //     //     // Call updateInventory after successful order submission
-                //     //     const newInventory = product.availableInventory - this.cartCount(product.id);
-                //     //     this.updateInventory(product, newInventory);
-                //     // });
-
-                //     let orderInfo = {
-                //         "FullName": this.order['firstName'] + this.order['lastName'],
-                //         "Number": this.order['number'],
-                //         "Products": productsOrdered
-                //     }
-
-                //     fetch('http://localhost:3000/collection/Orders', {
-                //         method: 'POST',
-                //         headers: {
-                //             'Content-Type': 'application/json',
-                //         },
-                //         body: JSON.stringify(orderInfo)
-                //     }).then(response => {
-                //         if (response.ok) {
-                //             this.cartProducts.forEach(product => {
-                //                 // productsOrdered.push(product.title + " x " + this.cartCount(product.id));
-                //                 // // Call updateInventory after successful order submission
-                //                 // const newInventory = product.availableInventory - this.cartCount(product.id);
-                //                 this.updateInventory(product);
-                //             });
-                //             console.log('Order submitted successfully');
-                //         } else {
-                //             console.error('Failed to submit order');
-                //         }
-                //     });
-
-                //     this.sitename = 'Courses'
-                //     this.cart.splice(0, this.cart.length);
-                // },
-
-
                 canAddToCart(product) {
+                    // Check if the product can be added to the cart
                     return product.availableInventory > this.cartCount(product.id);
                 },
                 cartCount(id) {
+                    // Count the number of instances of a product in the cart
                     let count = 0;
                     for (let i = 0; i < this.cart.length; i++) {
                         if (this.cart[i] === id) {
@@ -236,6 +197,7 @@
                     return count;
                 },
                 deleteFromCart(id) {
+                    // Remove a product from the cart
                     let found = false;
 
                     function cartRefresh(cartItem) {
@@ -253,6 +215,7 @@
                     this.cart = this.cart.filter(cartRefresh);
                 },
                 validateOrderForm() {
+                    // Validate order form inputs
                     const nameRegex = /^[A-Za-z]+$/;
                     const phoneRegex = /^[0-9]+$/;
 
@@ -262,6 +225,7 @@
                     this.isOrderFormValid = isNameValid && isPhoneValid;
                 },
                 filterProducts() {
+                    // Filter products based on search query
                     const url = `AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/search/${this.searchQuery}`;
                     fetch(url)
                         .then(response => response.json())
@@ -275,6 +239,7 @@
                 },
 
                 submitForm() {
+                    // Submit order form
                     let productsOrdered = [];
 
                     this.cartProducts.forEach(product => {
@@ -295,24 +260,22 @@
                         body: JSON.stringify(orderInfo)
                     }).then(response => {
                         if (response.ok) {
-                            // Place order successful
-                            // Now update inventory
                             this.cartProducts.forEach(product => {
                                 const newInventory = product.availableInventory - this.cartCount(product.id);
                                 this.updateInventory(product._id, newInventory);
                             });
-                            console.log('Order submitted successfully');
                             alert("Order Submitted");
                             this.sitename = 'Courses';
                             this.cart = [];
                             window.location.reload()
                         } else {
-                            console.error('Failed to submit order');
+                            console.error('Error Submitting Order');
                         }
                     });
                 },
 
                 updateInventory(productId, newInventory) {
+                    // Update inventory after an order is placed
                     const url = `AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/updateInventory/${productId}`;
                     const data = { availableInventory: newInventory };
 
@@ -327,7 +290,7 @@
                             if (!response.ok) {
                                 throw new Error('Failed to update inventory');
                             }
-                            console.log('Inventory updated successfully');
+                            console.log('Inventory updated');
                         })
                         .catch(error => {
                             console.error('Error updating inventory:', error);
@@ -339,6 +302,7 @@
             // Computed properties for dynamic data manipulation
             computed: {
                 cartItemCount: function () {
+                    // Calculate the total number of items in the cart
                     return this.cart.length || '';
                 },
                 sortedProducts() {
