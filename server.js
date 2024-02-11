@@ -19,7 +19,7 @@ app.use((req, res, next) => {
     console.log(`[${new Date().toUTCString()}] ${req.method} ${req.originalUrl}`);
     next()
     // Log request body if it exists
-    });
+});
 const MongoClient = require('mongodb').MongoClient;
 
 let db;
@@ -106,7 +106,7 @@ app.get('/collection/:collectionName/search/:searchQ', (req, res, next) => {
     });
 });
 
-const STATIC_IMAGE_DIR = path.join(__dirname,'static','images');
+const STATIC_IMAGE_DIR = path.join(__dirname, 'static', 'images');
 
 // Set up middleware to serve static files (images in this case)
 app.use('/images', express.static(STATIC_IMAGE_DIR));
