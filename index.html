@@ -262,7 +262,7 @@
                     this.isOrderFormValid = isNameValid && isPhoneValid;
                 },
                 filterProducts() {
-                    const url = `http://localhost:3000/collection/Products/search/${this.searchQuery}`;
+                    const url = `AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/search/${this.searchQuery}`;
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
@@ -287,7 +287,7 @@
                         "Products": productsOrdered
                     };
 
-                    fetch('http://localhost:3000/collection/Orders', {
+                    fetch('AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -313,7 +313,7 @@
                 },
 
                 updateInventory(productId, newInventory) {
-                    const url = `http://localhost:3000/collection/Products/updateInventory/${productId}`;
+                    const url = `AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/updateInventory/${productId}`;
                     const data = { availableInventory: newInventory };
 
                     fetch(url, {
