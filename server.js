@@ -36,9 +36,9 @@ app.get('/', (req, res, next) => {
     res.send('select a collection, e.g., /collection/messages')
 })
 
-app.listen(3000, () => {
-    console.log('Express.js server running at localhost:3000')
-})
+// app.listen(3000, () => {
+//     console.log('Express.js server running at localhost:3000')
+// })
 
 app.get('/collection/:collectionName', (req, res, next) => {
     req.collection.find({}).toArray((e, results) => {
@@ -123,5 +123,5 @@ app.use((err, req, res, next) => {
     res.status(500).send('Image Not Found');
 });
 
-// const port = process.env.PORT || 3000
-// app.listen(port)
+const port = process.env.PORT || 3000
+app.listen(port)
