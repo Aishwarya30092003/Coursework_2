@@ -226,7 +226,7 @@
                 },
                 filterProducts() {
                     // Filter products based on search query
-                    const url = `AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/search/${this.searchQuery}`;
+                    const url = `http://afterschool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/search/${this.searchQuery}`;
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
@@ -252,7 +252,7 @@
                         "Products": productsOrdered
                     };
 
-                    fetch('AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Orders', {
+                    fetch('http://afterschool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -276,7 +276,7 @@
 
                 updateInventory(productId, newInventory) {
                     // Update inventory after an order is placed
-                    const url = `AfterSchool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/updateInventory/${productId}`;
+                    const url = `http://afterschool-env.eba-3ppfxag2.eu-north-1.elasticbeanstalk.com/collection/Products/updateInventory/${productId}`;
                     const data = { availableInventory: newInventory };
 
                     fetch(url, {
